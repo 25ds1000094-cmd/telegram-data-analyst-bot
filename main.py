@@ -50,7 +50,7 @@ async def message_handler(
         "answer":answer,
 
         "log_url":
-        "YOUR_PUBLIC_LOG_URL_HERE"
+        "https://telegram-data-analyst-bot-wq6z.onrender.com/run.jsonl"
 
     }
 

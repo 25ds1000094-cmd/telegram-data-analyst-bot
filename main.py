@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import send_file
+from flask import Flask, send_file
 import threading
 import os
 import json
@@ -16,7 +15,6 @@ from ai_agent import ask_ai
 from logger import save_log
 
 
-
 async def message_handler(
         update: Update,
         context: ContextTypes.DEFAULT_TYPE
@@ -24,36 +22,30 @@ async def message_handler(
 
     question = update.message.text
 
-
     save_log({
-
-        "event":"question_received",
-
-        "question":question
-
+        "event": "question_received",
+        "question": question
     })
-
 
     try:
 
         answer = ask_ai(question)
 
-save_log({
-    "question": question,
-    "answer": answer
-})
-
+        save_log({
+            "question": question,
+            "answer": answer
+        })
 
     except Exception as e:
 
         answer = {
-            "error":str(e)
+            "error": str(e)
         }
 
 
-    result={
+    result = {
 
-        "answer":answer,
+        "answer": answer,
 
         "log_url": "https://telegram-data-analyst-bot-wq6z.onrender.com/run.jsonl"
 
@@ -62,51 +54,42 @@ save_log({
 
     save_log({
 
-        "event":"response_sent",
+        "event": "response_sent",
 
-        "response":result
+        "response": result
 
     })
 
 
     await update.message.reply_text(
-
         json.dumps(result)
-
     )
-
 
 
 app = Application.builder().token(
-
     os.environ["TELEGRAM_TOKEN"]
-
 ).build()
 
 
-
 app.add_handler(
-
     MessageHandler(
-
         filters.TEXT,
-
         message_handler
-
     )
-
 )
-
 
 
 print("Bot running...")
 
+
+# Flask server for Render
 web_app = Flask(__name__)
 
 
 @web_app.route("/")
 def home():
     return "Bot is running"
+
 
 @web_app.route("/run.jsonl")
 def logs():
@@ -115,7 +98,9 @@ def logs():
         mimetype="application/json"
     )
 
+
 def run_web():
+
     web_app.run(
         host="0.0.0.0",
         port=10000
@@ -125,5 +110,6 @@ def run_web():
 threading.Thread(
     target=run_web
 ).start()
+
 
 app.run_polling()

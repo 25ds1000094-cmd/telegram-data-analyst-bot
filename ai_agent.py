@@ -7,7 +7,6 @@ def ask_ai(question):
 
     token = os.environ["AI_PIPE_TOKEN"]
 
-
     response = requests.post(
 
         "https://aipipe.org/openai/v1/chat/completions",
@@ -21,27 +20,19 @@ def ask_ai(question):
 
             "model": "gpt-4o-mini",
 
-            "messages":[
-
+            "messages": [
                 {
-                    "role":"system",
-                    "content":
-                    """
+                    "role": "system",
+                    "content": """
                     You are a data analyst.
-
                     Answer the user's question.
-
                     Return ONLY valid JSON.
-                    No markdown.
-                    No explanation.
                     """
                 },
-
                 {
-                    "role":"user",
-                    "content":question
+                    "role": "user",
+                    "content": question
                 }
-
             ]
 
         }
@@ -49,11 +40,37 @@ def ask_ai(question):
     )
 
 
-    data=response.json()
-    
-    print(data)
-
-    answer=data["choices"][0]["message"]["content"]
+    print("STATUS:", response.status_code)
+    print("RAW RESPONSE:", response.text)
 
 
-    return json.loads(answer)
+    data = response.json()
+
+
+    # OpenAI compatible response
+    if "choices" in data:
+        text = data["choices"][0]["message"]["content"]
+
+    # Some AI Pipe responses use output
+    elif "output" in data:
+        text = data["output"]
+
+    # Some return message
+    elif "message" in data:
+        text = data["message"]
+
+    else:
+        return {
+            "error": "Unknown AI response format",
+            "raw": data
+        }
+
+
+    try:
+        return json.loads(text)
+
+    except:
+
+        return {
+            "answer": text
+        }

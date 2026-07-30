@@ -50,7 +50,8 @@ def ask_ai(question):
 
 
     data=response.json()
-
+    
+    print(data)
 
     answer=data["choices"][0]["message"]["content"]
 

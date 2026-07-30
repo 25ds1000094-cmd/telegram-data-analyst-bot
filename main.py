@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import send_file
 import threading
 import os
 import json
@@ -37,6 +38,11 @@ async def message_handler(
 
         answer = ask_ai(question)
 
+save_log({
+    "question": question,
+    "answer": answer
+})
+
 
     except Exception as e:
 
@@ -49,8 +55,7 @@ async def message_handler(
 
         "answer":answer,
 
-        "log_url":
-        "https://telegram-data-analyst-bot-wq6z.onrender.com/run.jsonl"
+        "log_url": "https://telegram-data-analyst-bot-wq6z.onrender.com/run.jsonl"
 
     }
 
@@ -103,6 +108,12 @@ web_app = Flask(__name__)
 def home():
     return "Bot is running"
 
+@web_app.route("/run.jsonl")
+def logs():
+    return send_file(
+        "logs/run.jsonl",
+        mimetype="application/json"
+    )
 
 def run_web():
     web_app.run(
